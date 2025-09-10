@@ -1,7 +1,9 @@
 package com.sujay.journalApplication.controller;
 
 import com.sujay.journalApplication.entity.JournalEntry;
+import com.sujay.journalApplication.entity.User;
 import com.sujay.journalApplication.service.JournalEntryService;
+import com.sujay.journalApplication.service.UserService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,24 +21,29 @@ public class JournalEntryController {
     @Autowired
     private JournalEntryService journalEntryService;
 
-    @GetMapping
-    public ResponseEntity<?> getAll() {
-        List<JournalEntry> allJournals = journalEntryService.getAll();
-        if (allJournals != null && !allJournals.isEmpty()) {
-            return new ResponseEntity<>(allJournals, HttpStatus.OK);
-        }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-    }
+    @Autowired
+    private UserService userService;
 
-    @PostMapping
-    public ResponseEntity<JournalEntry> createEntry(@RequestBody JournalEntry myEntry) {
+    @PostMapping("/{userName}")
+    public ResponseEntity<JournalEntry> createEntry(@RequestBody JournalEntry myEntry,@PathVariable String userName) {
         try {
-            myEntry.setDate(LocalDateTime.now());
-            journalEntryService.saveEntry(myEntry);
+            journalEntryService.saveEntry(myEntry, userName);
             return new ResponseEntity<>(myEntry, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @GetMapping("/{userName}")
+    public ResponseEntity<?> getAllJournalEntriesOfUser(@PathVariable String userName) {
+        //find user based on userName
+        User user = userService.findByUserName(userName);
+        List<JournalEntry> allJournals = user.getJournalEntries();
+
+        if (allJournals != null && !allJournals.isEmpty()) {
+            return new ResponseEntity<>(allJournals, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     // In Optional<JournalEntry> - return type is optional (means data is in container).
@@ -52,16 +59,20 @@ public class JournalEntryController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @DeleteMapping("/id/{myId}")
+    @DeleteMapping("/id/{userName}/{myId}")
     //ResponseEntity<?> lets you return flexible response types (String, Object, List, Error, etc.) along with the HTTP status.
     //The <?> is a wildcard → means “any type”.
-    public ResponseEntity<?> deleteById(@PathVariable ObjectId myId) {
-        journalEntryService.deleteById(myId);
+    public ResponseEntity<?> deleteById(@PathVariable ObjectId myId, @PathVariable String userName) {
+        journalEntryService.deleteById(myId, userName);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PutMapping("/id/{myId}")
-    public ResponseEntity<?> updateJournalById(@PathVariable ObjectId myId, @RequestBody JournalEntry newEntry) {
+    @PutMapping("/id/{userName}/{myId}")
+    public ResponseEntity<?> updateJournalById(
+            @PathVariable ObjectId myId,
+            @RequestBody JournalEntry newEntry,
+            @PathVariable String userName
+    ) {
         JournalEntry oldEntry = journalEntryService.findById(myId).orElse(null);
         if (oldEntry != null) {
             oldEntry.setTitle(newEntry.getTitle() != null && !newEntry.getTitle().equals("") ? newEntry.getTitle() : oldEntry.getTitle());
