@@ -1,10 +1,14 @@
 package com.sujay.journalApplication.controller;
 
 import com.sujay.journalApplication.entity.User;
+import com.sujay.journalApplication.repository.UserRepository;
 import com.sujay.journalApplication.service.UserService;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,18 +20,14 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @PostMapping
-    public void createUser(@RequestBody User user) {
-        userService.saveEntry(user);
-    }
+    @Autowired
+    private UserRepository userRepository;
 
-    @GetMapping
-    public List<User> getAll() {
-        return userService.getAll();
-    }
-
-    @PutMapping("/update/{userName}")
-    public ResponseEntity<?> updateUser(@RequestBody User user, @PathVariable String userName) {
+    @PutMapping("/update")
+    public ResponseEntity<?> updateUser(@RequestBody User user) {
+        //get authentication details
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userName = user.getUserName();
         User userInDB = userService.findByUserName(userName);
         if (userInDB != null ) {
             userInDB.setUserName(user.getUserName());
@@ -37,5 +37,10 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-
+    @DeleteMapping("/delete")
+    public ResponseEntity<?> deleteUserById() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        userRepository.deleteByUserName(authentication.getName());
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }
