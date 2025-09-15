@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 //Controller --> Service --> Repository
 @RestController
@@ -53,40 +54,54 @@ public class JournalEntryController {
     // In Optional<JournalEntry> - return type is optional (means data is in container).
     // If entry exists -> return it.
     // If not -> return null (which gives empty response body in REST).
-    @GetMapping("/id/{myId}")
+    @GetMapping("/get/{myId}")
     public ResponseEntity<JournalEntry> getById(@PathVariable ObjectId myId) {
-        //Alt+Enter to get
-        Optional<JournalEntry> journalEntry = journalEntryService.findById(myId);
-        if(journalEntry.isPresent()) {
-            return new ResponseEntity<>(journalEntry.get(), HttpStatus.OK);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userName = authentication.getName();
+        User user = userService.findByUserName(userName);
+        List<JournalEntry> collect = user.getJournalEntries().stream().filter(x -> x.getId().equals(myId)).collect(Collectors.toList());
+        if (!collect.isEmpty()) {
+            Optional<JournalEntry> journalEntry = journalEntryService.findById(myId);
+            if (journalEntry.isPresent()) {
+                return new ResponseEntity<>(journalEntry.get(), HttpStatus.OK);
+            }
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @DeleteMapping("/id/{userName}/{myId}")
+    @DeleteMapping("/delete/{myId}")
     //ResponseEntity<?> lets you return flexible response types (String, Object, List, Error, etc.) along with the HTTP status.
     //The <?> is a wildcard → means “any type”.
-    public ResponseEntity<?> deleteById(@PathVariable ObjectId myId, @PathVariable String userName) {
-        journalEntryService.deleteById(myId, userName);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    public ResponseEntity<?> deleteById(@PathVariable ObjectId myId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userName = authentication.getName();
+        boolean removed  = journalEntryService.deleteById(myId, userName);
+        if (removed) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
-    @PutMapping("/id/{userName}/{myId}")
-    public ResponseEntity<?> updateJournalById(
-            @PathVariable ObjectId myId,
-            @RequestBody JournalEntry newEntry,
-            @PathVariable String userName
-    ) {
-        JournalEntry oldEntry = journalEntryService.findById(myId).orElse(null);
-        if (oldEntry != null) {
-            oldEntry.setTitle(newEntry.getTitle() != null && !newEntry.getTitle().equals("") ? newEntry.getTitle() : oldEntry.getTitle());
-            oldEntry.setContent(newEntry.getContent() != null && !newEntry.getContent().equals("") ? newEntry.getContent() : oldEntry.getContent());
+    @PutMapping("/update/{myId}")
+    public ResponseEntity<?> updateJournalById(@PathVariable ObjectId myId, @RequestBody JournalEntry newEntry) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userName = authentication.getName();
+        User user = userService.findByUserName(userName);
+        List<JournalEntry> collect = user.getJournalEntries().stream().filter(x -> x.getId().equals(myId)).collect(Collectors.toList());
+        if (!collect.isEmpty()) {
+            Optional<JournalEntry> journalEntry = journalEntryService.findById(myId);
+            if (journalEntry.isPresent()) {
+                JournalEntry oldEntry = journalEntry.get();
+                oldEntry.setTitle(newEntry.getTitle() != null && !newEntry.getTitle().equals("") ? newEntry.getTitle() : oldEntry.getTitle());
+                oldEntry.setContent(newEntry.getContent() != null && !newEntry.getContent().equals("") ? newEntry.getContent() : oldEntry.getContent());
 
-            //update timestamp on the saved entity itself
-            oldEntry.setDate(LocalDateTime.now());
-            // Save back the updated entry (replaces old in DB)
-            journalEntryService.saveEntry(oldEntry);
-            return new ResponseEntity<>(oldEntry, HttpStatus.OK);
+                //update timestamp on the saved entity itself
+                oldEntry.setDate(LocalDateTime.now());
+                // Save back the updated entry (replaces old in DB)
+                journalEntryService.saveEntry(oldEntry);
+                return new ResponseEntity<>(oldEntry, HttpStatus.OK);
+            }
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
