@@ -27,7 +27,7 @@ public class JournalEntryController {
     @Autowired
     private UserService userService;
 
-    @PostMapping
+    @PostMapping("/post")
     public ResponseEntity<JournalEntry> createEntry(@RequestBody JournalEntry myEntry) {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -39,7 +39,7 @@ public class JournalEntryController {
         }
     }
 
-    @GetMapping
+    @GetMapping("/get-all")
     public ResponseEntity<?> getAllJournalEntriesOfUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userName = authentication.getName();
@@ -54,7 +54,7 @@ public class JournalEntryController {
     // In Optional<JournalEntry> - return type is optional (means data is in container).
     // If entry exists -> return it.
     // If not -> return null (which gives empty response body in REST).
-    @GetMapping("/get/{myId}")
+    @GetMapping("/get-byId/{myId}")
     public ResponseEntity<JournalEntry> getById(@PathVariable ObjectId myId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userName = authentication.getName();
