@@ -2,7 +2,10 @@ package com.sujay.journalApplication.Service;
 
 import com.sujay.journalApplication.Entity.User;
 import com.sujay.journalApplication.Repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -13,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Component
+@Slf4j
 public class UserService {
 
     @Autowired
@@ -27,9 +31,11 @@ public class UserService {
             userRepository.save(user);
             return true;
         } catch (Exception e) {
+            log.info("Same user name found, try other userName");
+            log.warn("Same user name found, try other userName");
+            log.error("Same user name found, try other userName");
             return false;
         }
-
     }
 
     public void saveAdmin(User user) {
