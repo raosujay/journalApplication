@@ -13,8 +13,6 @@ public class UserRepositoryImpl {
     @Autowired
     private MongoTemplate mongoTemplate;
 
-
-
     public List<User> getUserForSentimentAnalysis() {
         Query query = new Query();
         // query.addCriteria(Criteria.where("userName").is("sujay"));
