@@ -1,5 +1,6 @@
 package com.sujay.journalApplication.Entity;
 
+import com.sujay.journalApplication.Enums.Sentiment;
 import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -25,6 +26,9 @@ public class User {
     private boolean sentimentAnalysis;
     @NonNull
     private String password;
+
+    //Enum - Sentiment
+    private Sentiment sentiment;
 
     @DBRef
     private List<JournalEntry> journalEntries = new ArrayList<>();
