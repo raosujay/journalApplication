@@ -24,7 +24,6 @@ public class UserScheduler {
     @Autowired
     private UserRepositoryImpl userRepository;
 
-
     @Scheduled(cron = "0 0 9 * * SUN")
     public void fetchUsersAndSendSaMail() {
         List<User> users = userRepository.getUserForSentimentAnalysis();
@@ -49,7 +48,7 @@ public class UserScheduler {
                 }
             }
             if (mostFrequentSentiment != null) {
-                emailService.SendEmail(user.getEmail(), "sentiment of last 7 Days", mostFrequentSentiment.toString());
+                emailService.sendEmail(user.getEmail(), "sentiment of last 7 Days", mostFrequentSentiment.toString());
             }
         }
     }

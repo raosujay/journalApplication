@@ -12,7 +12,7 @@ public class EmailServiceTests {
 
     @Test
     void testSendMail() {
-        emailService.SendEmail("sujay.92@yahoo.com",
+        emailService.sendEmail("sujay.92@yahoo.com",
                 "Sending mail from Spring Boot JournalApplication",
                 "Hi, This is a test email from sujay's JournalApplication");
     }
