@@ -1,8 +1,3 @@
-Got it — here is a clean, professional **README.md** you can copy-paste directly into your GitHub repo.
-It is concise, developer-friendly, and matches a typical Spring Boot REST API project.
-
----
-
 ```markdown
 # 📓 Journal Application (Spring Boot + MongoDB)
 
@@ -125,19 +120,5 @@ http://localhost:8080/swagger-ui.html
 * Add JWT filter in `config/security`
 * Add login controller returning token
 * Require `Authorization: Bearer <token>` for journal endpoints
-
-*(JWT code can be added if needed — just ask!)*
-
----
-
-## 📝 License
-
-This project is open-source and available for modification and use.
-
----
-
-## 🤝 Contributing
-
-Contributions, issues, and feature requests are welcome!
 
 ---
