@@ -1,59 +1,64 @@
-```markdown
-# 📓 Journal Application (Spring Boot + MongoDB)
+# Journal Application
 
-A simple and clean REST API to create and manage personal journal entries.  
-Built with **Spring Boot**, **MongoDB**, and structured using service-repository architecture.
+A RESTful backend service for managing personal journal entries. Developed using **Spring Boot** and **MongoDB**, following a clean layered architecture.
 
 ---
 
-## 🚀 Features
+## Features
 
-- Create, read, update, and delete journal entries
-- MongoDB persistence
-- Layered architecture (Controller → Service → Repository)
-- Ready for JWT-based authentication (can be enabled easily)
-- Swagger UI available for exploring APIs
-
----
-
-## 🧱 Tech Stack
-
-| Layer        | Technology         |
-|-------------|-------------------|
-| Backend     | Spring Boot (Java) |
-| Database    | MongoDB            |
-| Build Tool  | Maven              |
-| API Docs    | Springdoc / Swagger UI |
+* Create, read, update, and delete journal entries
+* MongoDB persistence
+* Controller → Service → Repository layered structure
+* Swagger UI for API documentation
+* Easy to extend for authentication (JWT, OAuth, etc.)
 
 ---
 
-## 📁 Project Structure
+## Technology Stack
+
+| Component  | Technology             |
+| ---------- | ---------------------- |
+| Language   | Java (Spring Boot)     |
+| Database   | MongoDB                |
+| Build Tool | Maven                  |
+| API Docs   | Springdoc / Swagger UI |
+
+---
+
+## Project Structure
 
 ```
-
 src/main/java
-└─ com.example.journal
-├─ controller
-├─ service
-├─ repository
-├─ model
-└─ JournalApplication.java
-
-````
+ └─ com.example.journal
+     ├─ controller
+     ├─ service
+     ├─ repository
+     ├─ model
+     └─ JournalApplication.java
+```
 
 ---
 
-## ⚙️ Setup & Run
+## Prerequisites
 
-### 1. Clone the Repository
+* Java 17+
+* MongoDB (Local or Cloud)
+* Maven
+
+---
+
+## Setup Instructions
+
+### Clone the Repository
+
 ```bash
 git clone https://github.com/raosujay/journalApplication.git
 cd journalApplication
-````
+```
 
-### 2. Configure MongoDB
+### Configure MongoDB Connection
 
-Update **`src/main/resources/application.yml`**:
+Edit `src/main/resources/application.yml`:
 
 ```yaml
 spring:
@@ -64,7 +69,7 @@ server:
   port: 8080
 ```
 
-### 3. Run the Application
+### Run the Application
 
 ```bash
 ./mvnw spring-boot:run
@@ -79,46 +84,36 @@ java -jar target/*.jar
 
 ---
 
-## 🧪 API Reference
+## API Endpoints
 
-| Method | Endpoint                | Description            |
-| ------ | ----------------------- | ---------------------- |
-| POST   | `/api/v1/journals`      | Create a journal entry |
-| GET    | `/api/v1/journals`      | Get all entries        |
-| GET    | `/api/v1/journals/{id}` | Get entry by ID        |
-| PUT    | `/api/v1/journals/{id}` | Update full entry      |
-| PATCH  | `/api/v1/journals/{id}` | Update partial fields  |
-| DELETE | `/api/v1/journals/{id}` | Delete entry           |
+| Method | Endpoint                | Description                      |
+| ------ | ----------------------- | -------------------------------- |
+| POST   | `/api/v1/journals`      | Create a new journal entry       |
+| GET    | `/api/v1/journals`      | Retrieve all journal entries     |
+| GET    | `/api/v1/journals/{id}` | Retrieve a journal entry by ID   |
+| PUT    | `/api/v1/journals/{id}` | Update an existing journal entry |
+| PATCH  | `/api/v1/journals/{id}` | Partially update a journal entry |
+| DELETE | `/api/v1/journals/{id}` | Delete a journal entry           |
 
 ---
 
-## 🧑‍💻 Example Create Request
+## Example Request
 
 ```json
 POST /api/v1/journals
 {
-  "title": "A good day",
-  "content": "Went for a walk and read a book.",
-  "tags": ["personal","note"]
+  "title": "Morning Reflection",
+  "content": "Went for a walk and planned the day.",
+  "tags": ["personal"]
 }
 ```
 
 ---
 
-## 📖 Swagger UI
+## Swagger API Documentation
 
-Once the app is running, open:
+Once the application is running, open:
 
 ```
 http://localhost:8080/swagger-ui.html
 ```
-
----
-
-## 🔒 Optional: Enabling JWT Authentication
-
-* Add JWT filter in `config/security`
-* Add login controller returning token
-* Require `Authorization: Bearer <token>` for journal endpoints
-
----
