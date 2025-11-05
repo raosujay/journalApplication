@@ -1,9 +1,13 @@
 package com.sujay.journalApplication.Controller;
 
+import com.sujay.journalApplication.DTO.JournalEntryCreateDTO;
+import com.sujay.journalApplication.DTO.JournalEntryResponseDTO;
 import com.sujay.journalApplication.Entity.JournalEntry;
 import com.sujay.journalApplication.Entity.User;
 import com.sujay.journalApplication.Service.JournalEntryService;
 import com.sujay.journalApplication.Service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,6 +23,10 @@ import java.util.stream.Collectors;
 //Controller --> Service --> Repository
 @RestController
 @RequestMapping("/journal")
+@Tag(
+        name = "Journal APIs",
+        description = "APIs for creating, viewing, updating, and deleting journal entries for authenticated users."
+)
 public class JournalEntryController {
 
     @Autowired
@@ -27,18 +35,43 @@ public class JournalEntryController {
     @Autowired
     private UserService userService;
 
+    @Operation(
+            summary = "Create Journal Entry",
+            description = "Creates a new journal entry for the logged-in user. The entry contains title, content, and timestamp. Returns the created entry on success."
+    )
     @PostMapping("/post")
-    public ResponseEntity<JournalEntry> createEntry(@RequestBody JournalEntry myEntry) {
+    public ResponseEntity<JournalEntryResponseDTO> createEntry(@RequestBody JournalEntryCreateDTO myEntry) {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String userName = authentication.getName();
-            journalEntryService.saveEntry(myEntry, userName);
-            return new ResponseEntity<>(myEntry, HttpStatus.CREATED);
+
+            //Convert DTO to Entity
+            JournalEntry journalEntry = new JournalEntry();
+            journalEntry.setTitle(myEntry.getTitle());
+            journalEntry.setContent(myEntry.getContent());
+            journalEntry.setDate(LocalDateTime.now());
+
+            // Save entry linked to user
+            journalEntryService.saveEntry(journalEntry, userName);
+
+            // Convert Entity → Response DTO
+            JournalEntryResponseDTO response = new JournalEntryResponseDTO(
+                    journalEntry.getId().toHexString(),
+                    journalEntry.getTitle(),
+                    journalEntry.getContent(),
+                    journalEntry.getDate().toString()
+            );
+
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
 
+    @Operation(
+            summary = "Get All Journal Entries",
+            description = "Retrieves all journal entries created by the currently authenticated user. Returns 404 if no entries are found."
+    )
     @GetMapping("/get-all")
     public ResponseEntity<?> getAllJournalEntriesOfUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -51,17 +84,19 @@ public class JournalEntryController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    // In Optional<JournalEntry> - return type is optional (means data is in container).
-    // If entry exists -> return it.
-    // If not -> return null (which gives empty response body in REST).
+    @Operation(
+            summary = "Get Journal Entry by ID",
+            description = "Fetches a single journal entry using its unique ID. Returns the journal entry if found, otherwise responds with 404."
+    )
     @GetMapping("/get-byId/{myId}")
-    public ResponseEntity<JournalEntry> getById(@PathVariable ObjectId myId) {
+    public ResponseEntity<JournalEntry> getById(@PathVariable String myId) {
+        ObjectId objectId = new ObjectId(myId);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userName = authentication.getName();
         User user = userService.findByUserName(userName);
-        List<JournalEntry> collect = user.getJournalEntries().stream().filter(x -> x.getId().equals(myId)).collect(Collectors.toList());
+        List<JournalEntry> collect = user.getJournalEntries().stream().filter(x -> x.getId().equals(objectId)).collect(Collectors.toList());
         if (!collect.isEmpty()) {
-            Optional<JournalEntry> journalEntry = journalEntryService.findById(myId);
+            Optional<JournalEntry> journalEntry = journalEntryService.findById(objectId);
             if (journalEntry.isPresent()) {
                 return new ResponseEntity<>(journalEntry.get(), HttpStatus.OK);
             }
@@ -69,13 +104,17 @@ public class JournalEntryController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
+    @Operation(
+            summary = "Delete Journal Entry by ID",
+            description = "Deletes a journal entry identified by its ID, but only if it belongs to the logged-in user. Returns 204 on success or 404 if not found."
+    )
     @DeleteMapping("/delete/{myId}")
-    //ResponseEntity<?> lets you return flexible response types (String, Object, List, Error, etc.) along with the HTTP status.
     //The <?> is a wildcard → means “any type”.
-    public ResponseEntity<?> deleteById(@PathVariable ObjectId myId) {
+    public ResponseEntity<?> deleteById(@PathVariable String myId) {
+        ObjectId objectId = new ObjectId(myId);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userName = authentication.getName();
-        boolean removed  = journalEntryService.deleteById(myId, userName);
+        boolean removed  = journalEntryService.deleteById(objectId, userName);
         if (removed) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } else {
@@ -83,14 +122,19 @@ public class JournalEntryController {
         }
     }
 
+    @Operation(
+            summary = "Update Journal Entry by ID",
+            description = "Updates an existing journal entry for the logged-in user based on its ID. The user can modify the title and content fields. The updated timestamp is saved automatically."
+    )
     @PutMapping("/update/{myId}")
-    public ResponseEntity<?> updateJournalById(@PathVariable ObjectId myId, @RequestBody JournalEntry newEntry) {
+    public ResponseEntity<?> updateJournalById(@PathVariable String myId, @RequestBody JournalEntry newEntry) {
+        ObjectId objectId = new ObjectId(myId);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userName = authentication.getName();
         User user = userService.findByUserName(userName);
-        List<JournalEntry> collect = user.getJournalEntries().stream().filter(x -> x.getId().equals(myId)).collect(Collectors.toList());
+        List<JournalEntry> collect = user.getJournalEntries().stream().filter(x -> x.getId().equals(objectId)).collect(Collectors.toList());
         if (!collect.isEmpty()) {
-            Optional<JournalEntry> journalEntry = journalEntryService.findById(myId);
+            Optional<JournalEntry> journalEntry = journalEntryService.findById(objectId);
             if (journalEntry.isPresent()) {
                 JournalEntry oldEntry = journalEntry.get();
                 oldEntry.setTitle(newEntry.getTitle() != null && !newEntry.getTitle().equals("") ? newEntry.getTitle() : oldEntry.getTitle());

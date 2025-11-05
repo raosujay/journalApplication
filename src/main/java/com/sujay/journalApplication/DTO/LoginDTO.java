@@ -1,0 +1,21 @@
+package com.sujay.journalApplication.DTO;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import javax.validation.constraints.NotEmpty;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class LoginDTO {
+    @NotEmpty
+    @Schema(description = "Username of the user trying to log in")
+    private String userName;
+    @NotEmpty
+    @Schema(description = "Password of the user",
+            example = "StrongPassword@123")
+    private String password;
+}
