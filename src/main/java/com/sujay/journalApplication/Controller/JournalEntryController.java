@@ -37,7 +37,7 @@ public class JournalEntryController {
 
     @Operation(
             summary = "Create Journal Entry",
-            description = "Creates a new journal entry for the logged-in user. The entry contains title, content, and timestamp. Returns the created entry on success."
+            description = "Creates a new journal entry for the logged-in user. The entry contains title, content, Sentiment and timestamp. Returns the created entry on success."
     )
     @PostMapping("/post")
     public ResponseEntity<JournalEntryResponseDTO> createEntry(@RequestBody JournalEntryCreateDTO myEntry) {
@@ -49,6 +49,7 @@ public class JournalEntryController {
             JournalEntry journalEntry = new JournalEntry();
             journalEntry.setTitle(myEntry.getTitle());
             journalEntry.setContent(myEntry.getContent());
+            journalEntry.setSentiment(myEntry.getSentiment());
             journalEntry.setDate(LocalDateTime.now());
 
             // Save entry linked to user
@@ -124,7 +125,7 @@ public class JournalEntryController {
 
     @Operation(
             summary = "Update Journal Entry by ID",
-            description = "Updates an existing journal entry for the logged-in user based on its ID. The user can modify the title and content fields. The updated timestamp is saved automatically."
+            description = "Updates an existing journal entry for the logged-in user based on its ID. The user can only modify the title and content fields. The updated timestamp is saved automatically."
     )
     @PutMapping("/update/{myId}")
     public ResponseEntity<?> updateJournalById(@PathVariable String myId, @RequestBody JournalEntry newEntry) {

@@ -1,5 +1,6 @@
 package com.sujay.journalApplication.DTO;
 
+import com.sujay.journalApplication.Enums.Sentiment;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -13,4 +14,5 @@ public class JournalEntryCreateDTO {
     private String title;
     @NotBlank
     private String content;
+    private Sentiment sentiment;
 }
