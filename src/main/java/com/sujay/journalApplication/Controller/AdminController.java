@@ -12,7 +12,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/admin")
@@ -28,9 +30,26 @@ public class AdminController {
     )
     @GetMapping("/all-users")
     public ResponseEntity<?> getAllUsers() {
-        List<User> all = userService.getAll();
-        if (all != null && !all.isEmpty()) {
-            return new ResponseEntity<>(all, HttpStatus.OK);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        //check if the user is admin
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(role -> role
+                        .getAuthority().equals("ROLE_ADMIN")
+                );
+
+        if (!isAdmin) {
+            return new ResponseEntity<>("You are not a admin user, please ask admin", HttpStatus.FORBIDDEN);
+        }
+        //only admin can access all user details
+        List<User> allDetails = userService.getAll();
+        if (allDetails != null && !allDetails.isEmpty()) {
+
+            Map<String, Object> allUsers = new HashMap<>();
+            allUsers.put("Message", "All Users Details in Application");
+            allUsers.put("all details", allDetails);
+
+            return new ResponseEntity<>(allDetails, HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
