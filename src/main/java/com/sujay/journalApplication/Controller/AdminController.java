@@ -8,6 +8,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -39,11 +41,23 @@ public class AdminController {
     )
     @PostMapping("create-admin-user")
     public ResponseEntity<?> createUser(@RequestBody AdminUserDTO adminUserDTO) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null && !authentication.isAuthenticated()) {
+            return new ResponseEntity<>("Please login to perform this action", HttpStatus.UNAUTHORIZED);
+        }
+        //check if the user is admin
+        boolean isAdmin = authentication.getAuthorities().stream().anyMatch(role -> role.getAuthority().equals("ROLE_ADMIN"));
+
+        if (!isAdmin) {
+            return new ResponseEntity<>("You are not a admin user, please ask admin", HttpStatus.FORBIDDEN);
+        }
+        // If admin, proceed to create a new admin user
         User newAdminUser = new User();
         newAdminUser.setUserName(adminUserDTO.getUserName());
         newAdminUser.setPassword(adminUserDTO.getPassword());
         newAdminUser.setEmail(adminUserDTO.getEmail());
         userService.saveAdmin(newAdminUser);
-        return new ResponseEntity<>("Admin user created", HttpStatus.CREATED);
+        return new ResponseEntity<>("Admin user created successfully", HttpStatus.CREATED);
     }
 }

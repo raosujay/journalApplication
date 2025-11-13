@@ -16,7 +16,8 @@ public class AdminUserDTO {
     @Schema(description = "provide Unique username for admin login", example = "admin_sujay")
     private String userName;
     @NotEmpty
-    @Schema(description = "Admin user's password", example = "StrongPassword@123")
+    @Schema(description = "Admin user's password", example = "Password@123")
     private String password;
+    @Schema(description = "Admin email", example = "admin@gmail.com")
     private String email;
 }

@@ -16,6 +16,6 @@ public class LoginDTO {
     private String userName;
     @NotEmpty
     @Schema(description = "Password of the user",
-            example = "StrongPassword@123")
+            example = "Password@123")
     private String password;
 }
