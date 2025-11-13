@@ -46,10 +46,8 @@ public class AdminController {
         if (allDetails != null && !allDetails.isEmpty()) {
 
             Map<String, Object> allUsers = new HashMap<>();
-            allUsers.put("Message", "All Users Details in Application");
-            allUsers.put("all details", allDetails);
-
-            return new ResponseEntity<>(allDetails, HttpStatus.OK);
+            allUsers.put("All Users, their Journals & Roles", allDetails);
+            return new ResponseEntity<>(allUsers, HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
@@ -62,11 +60,9 @@ public class AdminController {
     public ResponseEntity<?> createUser(@RequestBody AdminUserDTO adminUserDTO) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (authentication == null && !authentication.isAuthenticated()) {
-            return new ResponseEntity<>("Please login to perform this action", HttpStatus.UNAUTHORIZED);
-        }
         //check if the user is admin
-        boolean isAdmin = authentication.getAuthorities().stream().anyMatch(role -> role.getAuthority().equals("ROLE_ADMIN"));
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(role -> role.getAuthority().equals("ROLE_ADMIN"));
 
         if (!isAdmin) {
             return new ResponseEntity<>("You are not a admin user, please ask admin", HttpStatus.FORBIDDEN);

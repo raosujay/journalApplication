@@ -15,6 +15,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Locale;
+
 @RestController
 @RequestMapping("/user")
 @Tag(
@@ -42,24 +44,26 @@ public class UserController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userName = authentication.getName();
         User userInDB = userService.findByUserName(userName);
+
         if (userInDB != null ) {
             userInDB.setUserName(updateUserDTO.getUserName());
             userInDB.setPassword(updateUserDTO.getPassword());
             userInDB.setEmail(updateUserDTO.getEmail());
             userService.saveNewUser(userInDB);
         }
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(" User Details Updated Successfully", HttpStatus.OK);
     }
 
     @Operation(
             summary = "Delete User Account",
             description = "Deletes the authenticated user's account from the database. This action cannot be undone."
     )
-    @DeleteMapping("/delete")
+    @DeleteMapping("/delete-user")
     public ResponseEntity<?> deleteUserById() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         userRepository.deleteByUserName(authentication.getName());
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
+        return new ResponseEntity<>("User Deleted Successfully", HttpStatus.NO_CONTENT);
     }
 
     @Operation(
@@ -74,6 +78,6 @@ public class UserController {
         if (weatherResponse != null) {
             greeting = ", Bangalore Weather feels like " + weatherResponse.getCurrent().getFeelslike() + " degree celsius";
         }
-        return new ResponseEntity<>("Hi " + authentication.getName() + greeting, HttpStatus.OK);
+        return new ResponseEntity<>("Hi " + authentication.getName().toUpperCase(Locale.ROOT) + greeting, HttpStatus.OK);
     }
 }

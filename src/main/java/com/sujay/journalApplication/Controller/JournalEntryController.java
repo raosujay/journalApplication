@@ -56,7 +56,7 @@ public class JournalEntryController {
             journalEntryService.saveEntry(journalEntry, userName);
 
             // Convert Entity → Response DTO
-            JournalEntryResponseDTO response = new JournalEntryResponseDTO(
+            JournalEntryResponseDTO newEntry = new JournalEntryResponseDTO(
                     journalEntry.getId().toHexString(),
                     journalEntry.getTitle(),
                     journalEntry.getContent(),
@@ -64,9 +64,7 @@ public class JournalEntryController {
             );
 
             Map<String, Object> journalCreatedMessage = new HashMap<>();
-            journalCreatedMessage.put("message", "Journal Created Successfully");
-            journalCreatedMessage.put("journal", response);
-
+            journalCreatedMessage.put("New Journal Created", newEntry);
             return new ResponseEntity<>(journalCreatedMessage, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -84,11 +82,11 @@ public class JournalEntryController {
         User user = userService.findByUserName(userName);
         List<JournalEntry> allJournals = user.getJournalEntries();
         if (allJournals != null && !allJournals.isEmpty()) {
-            return new ResponseEntity<>(allJournals, HttpStatus.OK);
+            Map<String, Object> allEntries = new HashMap<>();
+            allEntries.put("All Journals Entries", allJournals);
+            return new ResponseEntity<>(allEntries, HttpStatus.OK);
         }
-        Map<String, String> journalNotFoundMessage = new HashMap<>();
-        journalNotFoundMessage.put("message", "No Journals Found");
-        return new ResponseEntity<>(journalNotFoundMessage, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>("No Journals Found", HttpStatus.NOT_FOUND);
     }
 
     @Operation(
@@ -106,14 +104,11 @@ public class JournalEntryController {
             Optional<JournalEntry> journalEntry = journalEntryService.findById(objectId);
             if (journalEntry.isPresent()) {
                 Map<String, Object> journalFoundMessage = new HashMap<>();
-                journalFoundMessage.put("message", "Journal Found");
-                journalFoundMessage.put("journal", journalEntry.get());
+                journalFoundMessage.put("Journal Found for the Id", journalEntry.get());
                 return new ResponseEntity<>(journalFoundMessage, HttpStatus.OK);
             }
         }
-        Map<String, Object> journalNotFoundMessage = new HashMap<>();
-        journalNotFoundMessage.put("message", "Journal Not Found");
-        return new ResponseEntity<>(journalNotFoundMessage, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>("Journal Not Found", HttpStatus.NOT_FOUND);
     }
 
     @Operation(
@@ -128,13 +123,9 @@ public class JournalEntryController {
         String userName = authentication.getName();
         boolean removed  = journalEntryService.deleteById(objectId, userName);
         if (removed) {
-            Map<String, String> deleteSuccessMessage = new HashMap<>();
-            deleteSuccessMessage.put("message", "Journal Deleted Successfully");
-            return new ResponseEntity<>(deleteSuccessMessage, HttpStatus.OK);
+            return new ResponseEntity<>("Journal Deleted Successfully", HttpStatus.OK);
         } else {
-            Map<String, String> journalNotFoundMessage = new HashMap<>();
-             journalNotFoundMessage.put("message", "Journal Not Found");
-            return new ResponseEntity<>(journalNotFoundMessage, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("Journal Not Found", HttpStatus.NOT_FOUND);
         }
     }
 
@@ -160,14 +151,12 @@ public class JournalEntryController {
                 oldEntry.setDate(LocalDateTime.now());
                 // Save back the updated entry (replaces old in DB)
                 journalEntryService.saveEntry(oldEntry);
+
                 Map<String, Object> journalUpdatedMessage = new HashMap<>();
-                journalUpdatedMessage.put("message", "Journal updated");
-                journalUpdatedMessage.put("journal", oldEntry);
+                journalUpdatedMessage.put("Journal Updated Successfully", oldEntry);
                 return new ResponseEntity<>(journalUpdatedMessage, HttpStatus.OK);
             }
         }
-        Map<String, Object> journalNotFoundMessage = new HashMap<>();
-        journalNotFoundMessage.put("message", "Journal not found");
-        return new ResponseEntity<>(journalNotFoundMessage, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>("Journal not found", HttpStatus.NOT_FOUND);
     }
 }

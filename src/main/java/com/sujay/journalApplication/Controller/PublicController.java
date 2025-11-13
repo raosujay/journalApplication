@@ -73,10 +73,10 @@ public class PublicController {
             );
             UserDetails userDetails = userDetailsService.loadUserByUsername(loginDTO.getUserName());
             String jwtToken = jwtUtil.generateToken(userDetails.getUsername());
-            return new ResponseEntity<>(jwtToken, HttpStatus.OK);
+            return new ResponseEntity<>(jwtToken, HttpStatus.CREATED);
         } catch (Exception e) {
             log.error("Exception occurred while creating Authentication Token ", e);
-            return new ResponseEntity<>("Incorrect userName or Password", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Incorrect userName or Password, please check", HttpStatus.BAD_REQUEST);
         }
     }
 }
