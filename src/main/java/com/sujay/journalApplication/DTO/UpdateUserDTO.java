@@ -9,10 +9,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UpdateUserDTO {
-    @Schema(description = "New username (optional)", example = "sujay_07")
+    @Schema(description = "New username (optional)", example = "user_07")
     private String userName;
-    @Schema(description = "New password (optional)", example = "StrongerPass@123")
+    @Schema(description = "New password (optional)", example = "Password@123")
     private String password;
-    @Schema(description = "Email address (optional)", example = "sujay@example.com")
+    @Schema(description = "Email address (optional)", example = "user@gmail.com")
     private String email;
 }

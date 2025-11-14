@@ -37,7 +37,7 @@ public class JournalEntryController {
 
     @Operation(
             summary = "Create Journal Entry",
-            description = "Creates a new journal entry for the logged-in user. The entry contains title, content, Sentiment and timestamp. Returns the created entry on success."
+            description = "Creates a new journal entry for the logged-in user. The entry contains title, content, Sentiment. Returns the created entry on success."
     )
     @PostMapping("/post")
     public ResponseEntity<?> createEntry(@RequestBody JournalEntryCreateDTO myEntry) {
@@ -64,7 +64,7 @@ public class JournalEntryController {
             );
 
             Map<String, Object> journalCreatedMessage = new HashMap<>();
-            journalCreatedMessage.put("New Journal Created", newEntry);
+            journalCreatedMessage.put("Journal created successfully", newEntry);
             return new ResponseEntity<>(journalCreatedMessage, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -83,10 +83,10 @@ public class JournalEntryController {
         List<JournalEntry> allJournals = user.getJournalEntries();
         if (allJournals != null && !allJournals.isEmpty()) {
             Map<String, Object> allEntries = new HashMap<>();
-            allEntries.put("All Journals Entries", allJournals);
+            allEntries.put("Your Journal Entries", allJournals);
             return new ResponseEntity<>(allEntries, HttpStatus.OK);
         }
-        return new ResponseEntity<>("No Journals Found", HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>("You don’t have any journals yet. Start by creating one!", HttpStatus.NOT_FOUND);
     }
 
     @Operation(
@@ -104,7 +104,7 @@ public class JournalEntryController {
             Optional<JournalEntry> journalEntry = journalEntryService.findById(objectId);
             if (journalEntry.isPresent()) {
                 Map<String, Object> journalFoundMessage = new HashMap<>();
-                journalFoundMessage.put("Journal Found for the Id", journalEntry.get());
+                journalFoundMessage.put("Journal found", journalEntry.get());
                 return new ResponseEntity<>(journalFoundMessage, HttpStatus.OK);
             }
         }
@@ -123,7 +123,7 @@ public class JournalEntryController {
         String userName = authentication.getName();
         boolean removed  = journalEntryService.deleteById(objectId, userName);
         if (removed) {
-            return new ResponseEntity<>("Journal Deleted Successfully", HttpStatus.OK);
+            return new ResponseEntity<>("Journal Deleted Successfully", HttpStatus.NO_CONTENT);
         } else {
             return new ResponseEntity<>("Journal Not Found", HttpStatus.NOT_FOUND);
         }

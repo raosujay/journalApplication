@@ -12,11 +12,12 @@ import javax.validation.constraints.NotEmpty;
 @NoArgsConstructor
 public class UserDTO {
     @NotEmpty
-    @Schema(description = "The User's username")
+    @Schema(description = "provide Unique username for user", example = "sujay123")
     private String userName;
     @NotEmpty
+    @Schema(description = "User password", example = "Password@123")
     private String password;
+    @Schema(description = "User email", example = "user@gmail.com")
     private String email;
-
     private boolean sentimentAnalysis;
 }

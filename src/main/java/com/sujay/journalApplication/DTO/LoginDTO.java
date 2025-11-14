@@ -12,10 +12,9 @@ import javax.validation.constraints.NotEmpty;
 @NoArgsConstructor
 public class LoginDTO {
     @NotEmpty
-    @Schema(description = "Username of the user trying to log in")
+    @Schema(description = "Username of user trying to log in", example = "user01")
     private String userName;
     @NotEmpty
-    @Schema(description = "Password of the user",
-            example = "Password@123")
+    @Schema(description = "Password of the user", example = "Password@123")
     private String password;
 }
