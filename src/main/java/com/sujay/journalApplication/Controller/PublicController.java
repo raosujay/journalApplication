@@ -52,13 +52,14 @@ public class PublicController {
             description = "Registers a new user account by accepting username and password in the request body. This endpoint does not require authentication."
     )
     @PostMapping("/signup")
-    public void signup(@RequestBody UserDTO user) {
+    public ResponseEntity<?> signup(@RequestBody UserDTO user) {
         User newUser = new User();
         newUser.setUserName(user.getUserName());
         newUser.setPassword(user.getPassword());
         newUser.setEmail(user.getEmail());
         newUser.setSentimentAnalysis(user.isSentimentAnalysis());
         userService.saveNewUser(newUser);
+        return new ResponseEntity<>("User created successfully", HttpStatus.CREATED);
     }
 
     @Operation(

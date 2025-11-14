@@ -15,7 +15,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/user")
@@ -51,7 +53,8 @@ public class UserController {
             userInDB.setEmail(updateUserDTO.getEmail());
             userService.saveNewUser(userInDB);
         }
-        return new ResponseEntity<>(" User Details Updated Successfully", HttpStatus.OK);
+        String updateMessage = "User details updated for: " + updateUserDTO.getUserName();
+        return new ResponseEntity<>(updateMessage, HttpStatus.OK);
     }
 
     @Operation(
@@ -63,7 +66,8 @@ public class UserController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         userRepository.deleteByUserName(authentication.getName());
 
-        return new ResponseEntity<>("User Deleted Successfully", HttpStatus.NO_CONTENT);
+        String deletedMessage = "User Deleted Successfully: " + authentication.getName();
+        return new ResponseEntity<>(deletedMessage, HttpStatus.OK);
     }
 
     @Operation(
